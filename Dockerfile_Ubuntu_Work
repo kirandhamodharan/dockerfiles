@@ -1,0 +1,31 @@
+FROM ubuntu:20.04
+
+ARG NODE_VERSION=16.17.0
+ARG NODE_PATH="https://nodejs.org/dist/v$NODE_VERSION/node-v$NODE_VERSION-linux-x64.tar.xz"
+# ARG NODE_PATH="https://nodejs.org/dist/v$NODE_VERSION/node-v$NODE_VERSION-linux-armv7l.tar.xz"
+
+ARG JAVA_VERSION=18.0.2.1
+ARG JAVA_PATH="https://download.java.net/java/GA/jdk${JAVA_VERSION}/db379da656dc47308e138f21b33976fa/1/GPL/openjdk-${JAVA_VERSION}_linux-x64_bin.tar.gz"
+
+ARG TERRAFORM_VERSION=0.12.31
+ARG TERRAFORM_PATH="https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip"
+
+WORKDIR /tmp
+
+RUN apt update && \
+    apt install -y curl xz-utils unzip git && \
+    curl $NODE_PATH -o node-$NODE_VERSION.tar.xz && \
+    tar -xf node-$NODE_VERSION.tar.xz --directory / && ln -s /node-v$NODE_VERSION-linux-x64/bin/node /usr/local/bin/node && \
+    ln -s /node-v$NODE_VERSION-linux-x64/lib/node_modules/npm/bin/npm-cli.js /usr/local/bin/npm && \
+    curl $JAVA_PATH -o java-$JAVA_VERSION.tar.gz && \
+    tar -xf java-$JAVA_VERSION.tar.gz --directory / && ln -s /jdk-$JAVA_VERSION/bin/java /usr/local/bin/java && \
+    ln -s /jdk-$JAVA_VERSION/bin/javac /usr/local/bin/javac && \
+    curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" && \
+    unzip awscliv2.zip && \
+    ./aws/install && \
+    curl $TERRAFORM_PATH -o terraform_${TERRAFORM_VERSION}_linux_amd64.zip && \
+    unzip terraform_${TERRAFORM_VERSION}_linux_amd64.zip -d /usr/local/bin/ && \
+    apt clean
+
+# docker build --platform linux/x86_64 -t work_linux:v1 .
+# docker run --platform linux/x86_64 -it work_linux:v1 \sh
